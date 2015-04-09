@@ -88,7 +88,7 @@ class Chef
         end
 
         def auto_restart
-          new_resource.restart_on_update && !new_resource.down
+          new_resource.restart_on_update && !new_resource.start_down
         end
 
         def configure_service
@@ -144,7 +144,7 @@ class Chef
             # Create/Delete service down file
             # To prevent unexpected behavior, require users to explicitly set
             # delete_downfile to remove any down file that may already exist
-            if new_resource.down
+            if new_resource.start_down
               do_action(downfile, :create)
             elsif new_resource.delete_downfile
               do_action(downfile, :delete)

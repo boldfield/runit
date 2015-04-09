@@ -47,7 +47,7 @@ class Chef
         @log = true
         @cookbook = nil
         @check = false
-        @down = false
+        @start_down = false
         @delete_downfile = false
         @finish = false
         @owner = nil
@@ -154,8 +154,8 @@ class Chef
         set_or_return(:check, arg, :kind_of => [TrueClass, FalseClass])
       end
 
-      def down(arg = nil)
-        set_or_return(:down, arg, :kind_of => [TrueClass, FalseClass])
+      def start_down(arg = nil)
+        set_or_return(:start_down, arg, :kind_of => [TrueClass, FalseClass])
       end
 
       def delete_downfile(arg = nil)
