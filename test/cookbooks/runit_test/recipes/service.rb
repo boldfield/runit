@@ -172,3 +172,8 @@ end
 runit_service 'cook-2867' do
   default_logger true
 end
+
+runit_service "downed-service-6702" do
+  down true
+  action :enable
+end

@@ -47,6 +47,7 @@ class Chef
         @log = true
         @cookbook = nil
         @check = false
+        @down = false
         @finish = false
         @owner = nil
         @group = nil
@@ -150,6 +151,10 @@ class Chef
 
       def check(arg = nil)
         set_or_return(:check, arg, :kind_of => [TrueClass, FalseClass])
+      end
+
+      def down(arg = nil)
+        set_or_return(:down, arg, :kind_of => [TrueClass, FalseClass])
       end
 
       def owner(arg = nil)

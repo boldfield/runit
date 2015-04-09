@@ -82,9 +82,13 @@ class Chef
           end
           load_new_resource_state
           new_resource.enabled(true)
-          restart_service if new_resource.restart_on_update && run_script.updated_by_last_action?
-          restart_log_service if new_resource.restart_on_update && log_run_script.updated_by_last_action?
-          restart_log_service if new_resource.restart_on_update && log_config_file.updated_by_last_action?
+          restart_service if auto_restart && run_script.updated_by_last_action?
+          restart_log_service if auto_restart && log_run_script.updated_by_last_action?
+          restart_log_service if auto_restart && log_config_file.updated_by_last_action?
+        end
+
+        def auto_restart
+          new_resource.restart_on_update && !new_resource.down
         end
 
         def configure_service
@@ -136,6 +140,14 @@ class Chef
             else
               Chef::Log.debug("Control signals not specified for #{new_resource.service_name}, continuing")
             end
+
+            # Create/Delete service downfile
+            df_action = if new_resource.down
+                          :create
+                        else
+                          :delete
+                        end
+            do_action(downfile, df_action)
           end
 
           Chef::Log.debug("Creating lsb_init compatible interface #{new_resource.service_name}")
@@ -538,6 +550,13 @@ exec svlogd -tt /var/log/#{new_resource.service_name}"
               l.to(sv_dir_name)
               l
             end
+        end
+
+        def downfile
+          f = Chef::Resource::File.new(::File.join(sv_dir_name, 'down'), run_context)
+          f.mode(00644)
+          f.backup false
+          f
         end
 
         def inside_docker?
