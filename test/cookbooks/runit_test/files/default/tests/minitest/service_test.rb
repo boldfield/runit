@@ -126,4 +126,19 @@ describe 'runit_test::service' do
     link('/etc/service/git-daemon').must_exist.with(
       :link_type, :symbolic).and(:to, '/etc/sv/git-daemon')
   end
+
+  it 'creates a service with a default state of down' do
+    file('/etc/sv/downed-service-6702/run').must_exist
+    link('/etc/service/downed-service-6702').must_exist
+    runit_service('downed-service-6702').must_be_enabled
+    assert shell_out('netstat -tuplen | grep LISTEN | grep 6702').exitstatus != 0
+  end
+
+  it 'leaves existing downfile in place when down true -> false' do
+    file('/etc/sv/un-downed-service/down').must_exist
+  end
+
+  it 'removes existing downfile when requested' do
+    file('/etc/sv/un-downed-service-deleted/down').wont_exist
+  end
 end
