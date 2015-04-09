@@ -95,9 +95,13 @@ class Chef
           end
           load_new_resource_state
           @new_resource.enabled(true)
-          restart_service if @new_resource.restart_on_update && run_script.updated_by_last_action?
-          restart_log_service if @new_resource.restart_on_update && log_run_script.updated_by_last_action?
-          restart_log_service if @new_resource.restart_on_update && log_config_file.updated_by_last_action?
+          restart_service if auto_restart && run_script.updated_by_last_action?
+          restart_log_service if auto_restart && log_run_script.updated_by_last_action?
+          restart_log_service if auto_restart && log_config_file.updated_by_last_action?
+        end
+
+        def auto_restart
+          @new_resource.restart_on_update && !@new_resource.start_down
         end
 
         def configure_service
@@ -146,6 +150,15 @@ class Chef
               control_signal_files.each { |file| file.run_action(:create) }
             else
               Chef::Log.debug("Control signals not specified for #{new_resource.service_name}, continuing")
+            end
+
+            # Create/Delete service down file
+            # To prevent unexpected behavior, require users to explicitly set
+            # delete_downfile to remove any down file that may already exist
+            if new_resource.start_down
+              downfile.run_action(:create)
+            elsif new_resource.delete_downfile
+              downfile.run_action(:delete)
             end
           end
 
@@ -492,6 +505,14 @@ exec svlogd -tt /var/log/#{new_resource.service_name}"
           @service_link = Chef::Resource::Link.new(::File.join(service_dir_name), run_context)
           @service_link.to(sv_dir_name)
           @service_link
+        end
+
+        def downfile
+          f = Chef::Resource::File.new(::File.join(sv_dir_name, 'down'), run_context)
+          f.mode(00644)
+          f.backup(false)
+          f.content('# File created and managed by chef!')
+          f
         end
       end
     end

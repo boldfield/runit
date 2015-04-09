@@ -15,3 +15,5 @@ bin/*
 .bundle/*
 .kitchen/
 .kitchen.local.yml
+.librarian
+tmp/
