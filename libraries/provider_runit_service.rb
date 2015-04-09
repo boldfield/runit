@@ -141,13 +141,14 @@ class Chef
               Chef::Log.debug("Control signals not specified for #{new_resource.service_name}, continuing")
             end
 
-            # Create/Delete service downfile
-            df_action = if new_resource.down
-                          :create
-                        else
-                          :delete
-                        end
-            do_action(downfile, df_action)
+            # Create/Delete service down file
+            # To prevent unexpected behavior, require users to explicitly set
+            # delete_downfile to remove any down file that may already exist
+            if new_resource.down
+              do_action(downfile, :create)
+            elsif new_resource.delete_downfile
+              do_action(downfile, :delete)
+            end
           end
 
           Chef::Log.debug("Creating lsb_init compatible interface #{new_resource.service_name}")
@@ -555,7 +556,8 @@ exec svlogd -tt /var/log/#{new_resource.service_name}"
         def downfile
           f = Chef::Resource::File.new(::File.join(sv_dir_name, 'down'), run_context)
           f.mode(00644)
-          f.backup false
+          f.backup(false)
+          f.content('# File created and managed by chef!')
           f
         end
 

@@ -175,5 +175,29 @@ end
 
 runit_service "downed-service-6702" do
   down true
-  action :enable
+end
+
+log 'Created the exist-disabled service, now disable it'
+
+runit_service "un-downed-service" do
+  down true
+end
+
+runit_service "un-downed-service remove down" do
+  service_name 'un-downed-service'
+  log_template_name 'un-downed-service'
+  run_template_name 'un-downed-service'
+  down false
+end
+
+runit_service "un-downed-service-deleted" do
+  down true
+end
+
+runit_service "un-downed-service-deleted remove down" do
+  service_name 'un-downed-service-deleted'
+  log_template_name 'un-downed-service-deleted'
+  run_template_name 'un-downed-service-deleted'
+  down false
+  delete_downfile true
 end

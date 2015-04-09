@@ -133,4 +133,12 @@ describe 'runit_test::service' do
     runit_service('downed-service-6702').must_be_enabled
     assert shell_out('netstat -tuplen | grep LISTEN | grep 6702').exitstatus != 0
   end
+
+  it 'leaves existing downfile in place when down true -> false' do
+    file('/etc/sv/un-downed-service/down').must_exist
+  end
+
+  it 'removes existing downfile when requested' do
+    file('/etc/sv/un-downed-service-deleted/down').wont_exist
+  end
 end
