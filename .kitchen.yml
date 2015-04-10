@@ -3,13 +3,10 @@ driver:
 
 provisioner:
   name: chef_zero
+  require_chef_omnibus: 11.16.4
 
 platforms:
-  - name: centos-5.10
-  - name: centos-6.5
-  - name: fedora-19
   - name: ubuntu-10.04
-  - name: ubuntu-12.04
 
 suites:
 - name: default

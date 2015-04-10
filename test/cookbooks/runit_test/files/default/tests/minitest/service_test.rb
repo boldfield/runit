@@ -129,7 +129,7 @@ describe 'runit_test::service' do
   it 'creates a service with a default state of down' do
     file('/etc/sv/downed-service-6702/run').must_exist
     link('/etc/service/downed-service-6702').must_exist
-    runit_service('downed-service-6702').must_be_enabled
+    file('/etc/sv/downed-service-6702/down').must_exist
     assert shell_out('netstat -tuplen | grep LISTEN | grep 6702').exitstatus != 0
   end
 
@@ -139,5 +139,6 @@ describe 'runit_test::service' do
 
   it 'removes existing downfile when requested' do
     file('/etc/sv/un-downed-service-deleted/down').wont_exist
+    service('un-downed-service-deleted').must_be_running
   end
 end
